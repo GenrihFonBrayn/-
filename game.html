@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Простая игра с точкой</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+        }
+        canvas {
+            border: 2px solid #555;
+            background-color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+        }
+        h2 { margin-bottom: 10px; }
+        p { color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <h2>Управление стрелочками ⬆️⬇️⬅️➡️</h2>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <p>Нажми на поле, если управление не работает</p>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Настройки
+        const tileSize = 40; // Размер одной клетки
+        const cols = canvas.width / tileSize;
+        const rows = canvas.height / tileSize;
+
+        // Позиция игрока (начинаем в центре)
+        let playerX = Math.floor(cols / 2);
+        let playerY = Math.floor(rows / 2);
+
+        function draw() {
+            // 1. Очищаем экран (рисуем черный фон)
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Рисуем сетку (для красоты)
+            ctx.strokeStyle = '#333';
+            for (let x = 0; x <= canvas.width; x += tileSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= canvas.height; y += tileSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // 3. Рисуем игрока (зеленый круг)
+            ctx.fillStyle = '#00ff00';
+            ctx.beginPath();
+            // Вычисляем центр клетки
+            const centerX = playerX * tileSize + tileSize / 2;
+            const centerY = playerY * tileSize + tileSize / 2;
+            const radius = tileSize / 2 - 5; // Чуть меньше клетки
+            
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Добавим свечение
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#00ff00";
+            ctx.fill();
+            ctx.shadowBlur = 0; // Сбрасываем свечение для остальных объектов
+        }
+
+        function movePlayer(dx, dy) {
+            playerX += dx;
+            playerY += dy;
+
+            // Проверка границ: если ушли за край, появляемся с другой стороны
+            if (playerX >= cols) playerX = 0;
+            if (playerX < 0) playerX = cols - 1;
+            if (playerY >= rows) playerY = 0;
+            if (playerY < 0) playerY = rows - 1;
+
+            draw(); // Перерисовываем поле после движения
+        }
+
+        // Слушаем нажатия клавиш
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowUp') movePlayer(0, -1);
+            if (event.key === 'ArrowDown') movePlayer(0, 1);
+            if (event.key === 'ArrowLeft') movePlayer(-1, 0);
+            if (event.key === 'ArrowRight') movePlayer(1, 0);
+        });
+
+        // Запуск первой отрисовки
+        draw();
+    </script>
+</body>
+</html>
